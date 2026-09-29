@@ -1,0 +1,13 @@
+---
+import Base from '../../layouts/Base.astro';
+import VideoCard from '../../components/VideoCard.astro';
+import { cfg, getVideos, absUrl } from '../../lib/site.mjs';
+const videos = await getVideos();
+const ld = { '@context': 'https://schema.org', '@type': 'ItemList', itemListElement: videos.map((v, i) => ({ '@type': 'ListItem', position: i + 1, url: absUrl(`/videos/${v.id}/`) })) };
+---
+<Base seo={{ title: 'All videos', description: `Every ${cfg.channel.name} video with full show notes, chapters, and links.`, jsonLd: [ld] }}>
+  <section class="wrap section">
+    <header class="page-head"><h1>All videos</h1><p class="muted">{videos.length} videos with show notes, chapters & resources.</p></header>
+    <div class="grid-cards">{videos.map((v) => <VideoCard video={v} headingLevel="h2" />)}</div>
+  </section>
+</Base>

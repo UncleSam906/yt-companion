@@ -1,0 +1,12 @@
+---
+import { cfg, affiliateHref } from '../lib/site.mjs';
+interface Props { override?: { text?: string; label?: string; url?: string } }
+const b = { ...cfg.affiliate.banner, ...(Astro.props.override || {}) };
+const show = (cfg.affiliate.banner.enabled || Astro.props.override) && b.url;
+---
+{show && (
+  <p class="aff-banner">
+    {b.text && <span>{b.text}</span>}
+    <a class="btn btn-aff" href={affiliateHref(b.url)} rel="sponsored nofollow noopener" target="_blank" data-aff={b.label || 'header-banner'} data-placement="header">{b.label || 'Check it out'}</a>
+  </p>
+)}

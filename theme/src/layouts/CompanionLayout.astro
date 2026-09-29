@@ -1,0 +1,55 @@
+---
+// The core page template (matches the "Generic SEO website" wireframe):
+//   ┌──────────────── Title + affiliate banner (header) ────────────────┐
+//   │ LINKS │            YouTube embed             │ LINKS │   ← top
+//   │  AD   │          Show notes / blog post       │  AD   │   ← middle
+//   └───────────────────────────────────────────────────────────────────┘
+import Base from './Base.astro';
+import YouTubeEmbed from '../components/YouTubeEmbed.astro';
+import LinkRail from '../components/LinkRail.astro';
+import AdSlot from '../components/AdSlot.astro';
+import AffiliateBanner from '../components/AffiliateBanner.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { cfg, mergeLinks } from '../lib/site.mjs';
+const { seo, entry, crumbs = [], kicker } = Astro.props;
+const d = entry.data;
+const left = mergeLinks('left', d);
+const right = mergeLinks('right', d);
+const hasTop = Boolean(d.youtubeId);
+---
+<Base seo={seo}>
+  <div class="wrap companion">
+    {crumbs.length > 0 && <Breadcrumbs items={crumbs} />}
+    <header class="page-head">
+      {kicker && <p class="kicker">{kicker}</p>}
+      <h1>{d.title}</h1>
+      <AffiliateBanner override={d.affiliateBanner} />
+    </header>
+
+    {hasTop && (
+      <section class={`grid-3 grid-top ${left.length ? '' : 'no-left'} ${right.length ? '' : 'no-right'}`} aria-label="Video">
+        <LinkRail title={cfg.links.leftTitle} links={left} placement="left" />
+        <div class="col-main"><YouTubeEmbed id={d.youtubeId} title={d.title} eager /></div>
+        <LinkRail title={cfg.links.rightTitle} links={right} placement="right" />
+      </section>
+    )}
+
+    <section class="grid-3 grid-mid">
+      <AdSlot position="left" enabled={d.ads} />
+      <article class="col-main post">
+        <slot name="before" />
+        <div class="prose"><slot /></div>
+        <slot name="after" />
+      </article>
+      <AdSlot position="right" enabled={d.ads} />
+    </section>
+
+    {!hasTop && (left.length > 0 || right.length > 0) && (
+      <section class="grid-links-bottom">
+        <LinkRail title={cfg.links.leftTitle} links={left} placement="left" />
+        <LinkRail title={cfg.links.rightTitle} links={right} placement="right" />
+      </section>
+    )}
+    <slot name="footer" />
+  </div>
+</Base>

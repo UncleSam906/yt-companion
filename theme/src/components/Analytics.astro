@@ -1,0 +1,39 @@
+---
+// Config-driven analytics + affiliate click tracking. Supports Plausible, Umami, GA4.
+import { cfg } from '../lib/site.mjs';
+const a = cfg.analytics;
+const prod = import.meta.env.PROD;
+const track = cfg.affiliate.trackClicks;
+---
+{prod && a.provider === 'plausible' && a.plausible.domain && (
+  <script is:inline defer data-domain={a.plausible.domain} src={a.plausible.src}></script>
+)}
+{prod && a.provider === 'umami' && a.umami.websiteId && (
+  <script is:inline defer data-website-id={a.umami.websiteId} src={a.umami.src}></script>
+)}
+{prod && a.provider === 'ga4' && a.ga4.measurementId && (
+  <Fragment>
+    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${a.ga4.measurementId}`}></script>
+    <script is:inline define:vars={{ id: a.ga4.measurementId }}>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      window.gtag = gtag; gtag('js', new Date()); gtag('config', id);
+    </script>
+  </Fragment>
+)}
+{track && (
+  <script is:inline>
+    // Fires an "affiliate_click" event on whichever analytics provider is loaded.
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[data-aff]');
+      if (!a) return;
+      var props = { label: a.dataset.aff, placement: a.dataset.placement || '', page: location.pathname, url: a.href };
+      try {
+        if (window.plausible) window.plausible('Affiliate Click', { props: props });
+        if (window.umami) window.umami.track('affiliate_click', props);
+        if (window.gtag) window.gtag('event', 'affiliate_click', props);
+        window.dispatchEvent(new CustomEvent('ytc:affiliate-click', { detail: props }));
+      } catch (_) {}
+    }, { capture: true });
+  </script>
+)}

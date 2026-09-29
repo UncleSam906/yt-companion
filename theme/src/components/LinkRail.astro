@@ -1,0 +1,32 @@
+---
+import { affiliateHref } from '../lib/site.mjs';
+interface Link { label: string; url: string; note?: string; image?: string; cta?: string; affiliate?: boolean }
+interface Props { title: string; links: Link[]; placement: 'left' | 'right' }
+const { title, links, placement } = Astro.props;
+---
+{links.length > 0 && (
+  <aside class={`rail rail-links rail-${placement}`} aria-label={title}>
+    <h2 class="rail-title">{title}</h2>
+    <ul>
+      {links.map((l) => (
+        <li>
+          <a
+            href={l.affiliate === false ? l.url : affiliateHref(l.url)}
+            rel={l.affiliate === false ? 'noopener' : 'sponsored nofollow noopener'}
+            target="_blank"
+            data-aff={l.affiliate === false ? undefined : l.label}
+            data-placement={`links-${placement}`}
+            class="rail-link"
+          >
+            {l.image && <img src={l.image} alt="" width="64" height="64" loading="lazy" decoding="async" />}
+            <span class="rail-link-text">
+              <span class="rail-link-label">{l.label}</span>
+              {l.note && <span class="rail-link-note">{l.note}</span>}
+            </span>
+            <span class="rail-link-cta">{l.cta || 'View'} →</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </aside>
+)}

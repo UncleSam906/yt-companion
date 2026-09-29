@@ -1,0 +1,91 @@
+---
+import { render } from 'astro:content';
+import CompanionLayout from '../../layouts/CompanionLayout.astro';
+import VideoCard from '../../components/VideoCard.astro';
+import { cfg, getVideos, getPlaylists, relatedVideos, absUrl, ytThumb, ytWatch, formatDate, isoDuration, clockDuration, toSeconds, tagSlug } from '../../lib/site.mjs';
+
+export async function getStaticPaths() {
+  const videos = await getVideos();
+  return videos.map((video) => ({ params: { slug: video.id }, props: { video, all: videos } }));
+}
+const { video, all } = Astro.props;
+const d = video.data;
+const { Content } = await render(video);
+const playlists = (await getPlaylists()).filter((p) => p.items.some((v) => v.id === video.id));
+const related = relatedVideos(all, video, 4);
+const url = absUrl(`/videos/${video.id}/`);
+const thumb = d.image ? absUrl(d.image) : ytThumb(d.youtubeId, 'hqdefault');
+
+const chapters = d.chapters.map((c) => ({ ...c, sec: toSeconds(c.time) }));
+const videoLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoObject',
+  name: d.title,
+  description: d.description || d.title,
+  thumbnailUrl: [thumb, ytThumb(d.youtubeId, 'maxresdefault')],
+  uploadDate: d.date.toISOString(),
+  duration: isoDuration(d.duration),
+  embedUrl: `https://www.youtube.com/embed/${d.youtubeId}`,
+  url,
+  publisher: { '@type': 'Organization', name: cfg.channel.name, url: cfg.channel.url || cfg.site.url },
+  ...(chapters.length && {
+    hasPart: chapters.map((c, i) => ({
+      '@type': 'Clip', name: c.title, startOffset: c.sec,
+      ...(chapters[i + 1] ? { endOffset: chapters[i + 1].sec } : toSeconds(d.duration) ? { endOffset: toSeconds(d.duration) } : {}),
+      url: ytWatch(d.youtubeId, c.sec),
+    })),
+  }),
+  ...(d.transcript && { transcript: d.transcript }),
+};
+const crumbLd = {
+  '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: absUrl('/') },
+    { '@type': 'ListItem', position: 2, name: 'Videos', item: absUrl('/videos/') },
+    { '@type': 'ListItem', position: 3, name: d.title, item: url },
+  ],
+};
+const seo = { title: d.seoTitle || d.title, description: d.description, image: thumb, type: 'video.other', published: d.date, updated: d.updated, tags: d.tags, jsonLd: [videoLd, crumbLd] };
+---
+<CompanionLayout seo={seo} entry={video} crumbs={[{ label: 'Home', href: '/' }, { label: 'Videos', href: '/videos/' }, { label: d.title }]}>
+  <Fragment slot="before">
+    <p class="meta muted">
+      <time datetime={d.date.toISOString()}>{formatDate(d.date)}</time>
+      {d.duration && <span> · {clockDuration(d.duration)}</span>}
+      <span> · <a href={ytWatch(d.youtubeId)} rel="noopener" target="_blank">Watch on YouTube</a></span>
+    </p>
+    {chapters.length > 0 && (
+      <details class="chapters" open>
+        <summary>Chapters</summary>
+        <ol>
+          {chapters.map((c) => <li><a href={ytWatch(d.youtubeId, c.sec)} data-seek={c.sec}><span class="ts">{clockDuration(c.sec)}</span> {c.title}</a></li>)}
+        </ol>
+      </details>
+    )}
+  </Fragment>
+  <Content />
+  <Fragment slot="after">
+    {d.tags.length > 0 && <ul class="tags">{d.tags.map((t) => <li><a href={`/tags/${tagSlug(t)}/`}>#{t}</a></li>)}</ul>}
+    {playlists.map((p) => {
+      const i = p.items.findIndex((v) => v.id === video.id);
+      const prev = p.items[i - 1], next = p.items[i + 1];
+      return (
+        <nav class="pl-nav" aria-label={`Playlist: ${p.data.title}`}>
+          <p class="muted small">Part {i + 1} of {p.items.length} in <a href={`/playlists/${p.id}/`}>{p.data.title}</a></p>
+          <div class="pl-nav-row">
+            {prev ? <a href={`/videos/${prev.id}/`}>← {prev.data.title}</a> : <span />}
+            {next && <a href={`/videos/${next.id}/`} class="next">{next.data.title} →</a>}
+          </div>
+        </nav>
+      );
+    })}
+  </Fragment>
+  <Fragment slot="footer">
+    {related.length > 0 && (
+      <section class="related">
+        <h2>More videos</h2>
+        <div class="grid-cards">{related.map((v) => <VideoCard video={v} />)}</div>
+      </section>
+    )}
+  </Fragment>
+</CompanionLayout>

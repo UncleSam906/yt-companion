@@ -1,0 +1,16 @@
+---
+import { ytThumb, formatDate, clockDuration } from '../lib/site.mjs';
+interface Props { video: any; headingLevel?: 'h2' | 'h3' }
+const { video, headingLevel: H = 'h3' } = Astro.props;
+const d = video.data;
+---
+<article class="card">
+  <a href={`/videos/${video.id}/`} class="card-link">
+    <div class="card-thumb">
+      <img src={d.image || ytThumb(d.youtubeId, 'mqdefault')} alt="" width="320" height="180" loading="lazy" decoding="async" />
+      {d.duration && <span class="card-duration">{clockDuration(d.duration)}</span>}
+    </div>
+    <H class="card-title">{d.title}</H>
+  </a>
+  <p class="card-meta muted"><time datetime={d.date.toISOString()}>{formatDate(d.date)}</time></p>
+</article>

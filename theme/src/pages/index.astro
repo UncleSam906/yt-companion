@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro';
+import VideoCard from '../components/VideoCard.astro';
+import PostCard from '../components/PostCard.astro';
+import YouTubeEmbed from '../components/YouTubeEmbed.astro';
+import { cfg, getVideos, getPosts, getPlaylists, absUrl, ytThumb, formatDate } from '../lib/site.mjs';
+const videos = await getVideos();
+const featured = videos.find((v) => v.data.featured) || videos[0];
+const rest = videos.filter((v) => v !== featured).slice(0, 8);
+const posts = (await getPosts()).slice(0, 3);
+const playlists = (await getPlaylists()).filter((p) => p.items.length).slice(0, 4);
+const ld = [
+  { '@context': 'https://schema.org', '@type': 'WebSite', name: cfg.site.title, url: absUrl('/'), description: cfg.site.description },
+  { '@context': 'https://schema.org', '@type': 'Organization', name: cfg.channel.name, url: absUrl('/'), ...(cfg.site.logo && { logo: absUrl(cfg.site.logo) }), sameAs: [cfg.channel.url, ...cfg.social.map((s) => s.url)].filter(Boolean) },
+];
+---
+<Base seo={{ description: cfg.site.description, image: featured ? ytThumb(featured.data.youtubeId, 'hqdefault') : undefined, jsonLd: ld }}>
+  <section class="hero wrap">
+    <div class="hero-copy">
+      <p class="kicker">{cfg.channel.handle || 'Official companion site'}</p>
+      <h1>{cfg.site.title}</h1>
+      {cfg.site.tagline && <p class="lead">{cfg.site.tagline}</p>}
+      <p class="muted">{cfg.site.description}</p>
+      <p class="hero-cta">
+        <a class="btn" href="/videos/">Browse all videos</a>
+        {cfg.channel.url && <a class="btn btn-ghost" href={cfg.channel.url} rel="noopener" target="_blank">YouTube channel</a>}
+      </p>
+    </div>
+    {featured && (
+      <div class="hero-video">
+        <YouTubeEmbed id={featured.data.youtubeId} title={featured.data.title} eager />
+        <p class="hero-video-cap"><a href={`/videos/${featured.id}/`}><strong>{featured.data.title}</strong></a> <span class="muted">· {formatDate(featured.data.date)} · show notes & links →</span></p>
+      </div>
+    )}
+  </section>
+
+  {rest.length > 0 && (
+    <section class="wrap section">
+      <div class="section-head"><h2>Latest videos</h2><a href="/videos/">View all →</a></div>
+      <div class="grid-cards">{rest.map((v) => <VideoCard video={v} />)}</div>
+    </section>
+  )}
+
+  {playlists.length > 0 && (
+    <section class="wrap section">
+      <div class="section-head"><h2>Playlists</h2><a href="/playlists/">All playlists →</a></div>
+      <div class="grid-pl">
+        {playlists.map((p) => (
+          <a class="pl-tile" href={`/playlists/${p.id}/`}>
+            <img src={p.data.image || ytThumb(p.items[0].data.youtubeId, 'mqdefault')} alt="" width="320" height="180" loading="lazy" />
+            <span><strong>{p.data.title}</strong><span class="muted small">{p.items.length} {p.items.length === 1 ? "video" : "videos"}</span></span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {posts.length > 0 && (
+    <section class="wrap section">
+      <div class="section-head"><h2>From the blog</h2><a href="/blog/">All posts →</a></div>
+      <div class="post-list">{posts.map((p) => <PostCard post={p} />)}</div>
+    </section>
+  )}
+
+  {!videos.length && (
+    <section class="wrap section empty">
+      <h2>No videos yet</h2>
+      <p>Add your first one: <code>yt-companion add-video --url https://www.youtube.com/watch?v=VIDEO_ID</code></p>
+    </section>
+  )}
+</Base>

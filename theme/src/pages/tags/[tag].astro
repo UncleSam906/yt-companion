@@ -1,0 +1,23 @@
+---
+import Base from '../../layouts/Base.astro';
+import VideoCard from '../../components/VideoCard.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getVideos, getPosts, tagSlug } from '../../lib/site.mjs';
+export async function getStaticPaths() {
+  const [videos, posts] = await Promise.all([getVideos(), getPosts()]);
+  const tags = new Map();
+  for (const e of [...videos, ...posts]) for (const t of e.data.tags) tags.set(tagSlug(t), t);
+  return [...tags].map(([slug, label]) => ({
+    params: { tag: slug },
+    props: { label, videos: videos.filter((v) => v.data.tags.some((t) => tagSlug(t) === slug)), posts: posts.filter((p) => p.data.tags.some((t) => tagSlug(t) === slug)) },
+  }));
+}
+const { label, videos, posts } = Astro.props;
+---
+<Base seo={{ title: `#${label}`, description: `Videos and posts tagged ${label}.`, noindex: videos.length + posts.length < 2 }}>
+  <section class="wrap section">
+    <header class="page-head"><p class="kicker">Tag</p><h1>#{label}</h1></header>
+    {videos.length > 0 && <div class="grid-cards">{videos.map((v) => <VideoCard video={v} headingLevel="h2" />)}</div>}
+    {posts.length > 0 && <div class="post-list section">{posts.map((p) => <PostCard post={p} />)}</div>}
+  </section>
+</Base>

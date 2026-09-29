@@ -1,0 +1,49 @@
+{
+  "name": "yt-companion",
+  "version": "0.1.0",
+  "description": "CLI that generates fast, SEO-optimized static companion websites for YouTube channels (Astro under the hood).",
+  "type": "module",
+  "bin": {
+    "yt-companion": "bin/yt-companion.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "theme",
+    "templates",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "demo:build": "node bin/yt-companion.js build --cwd examples/demo",
+    "demo:serve": "node bin/yt-companion.js serve --cwd examples/demo",
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "youtube",
+    "static-site",
+    "astro",
+    "seo",
+    "cli",
+    "companion-site"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.3.5",
+    "commander": "^15.0.0",
+    "gray-matter": "^4.0.3",
+    "js-yaml": "^4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UncleSam906/yt-companion.git"
+  },
+  "homepage": "https://github.com/UncleSam906/yt-companion#readme",
+  "bugs": {
+    "url": "https://github.com/UncleSam906/yt-companion/issues"
+  }
+}

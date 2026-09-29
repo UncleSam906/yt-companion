@@ -1,0 +1,13 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { cfg, getPosts } from '../../lib/site.mjs';
+const posts = await getPosts();
+---
+<Base seo={{ title: 'Blog', description: `Articles, guides, and behind-the-scenes from ${cfg.channel.name}.` }}>
+  <section class="wrap section narrow">
+    <header class="page-head"><h1>Blog</h1></header>
+    <div class="post-list">{posts.map((p) => <PostCard post={p} />)}</div>
+    {!posts.length && <p class="muted">No posts yet. Write one with <code>yt-companion add-post --title "..."</code></p>}
+  </section>
+</Base>

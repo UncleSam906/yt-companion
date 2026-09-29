@@ -1,0 +1,19 @@
+---
+import { cfg } from '../lib/site.mjs';
+const path = Astro.url.pathname;
+const subscribe = cfg.channel.subscribeUrl || (cfg.channel.url ? cfg.channel.url.replace(/\/$/, '') + '?sub_confirmation=1' : '');
+---
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/" aria-label={`${cfg.site.title} home`}>
+      {cfg.site.logo ? <img src={cfg.site.logo} alt="" width="32" height="32" /> : <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span>}
+      <span>{cfg.site.title}</span>
+    </a>
+    <nav aria-label="Main">
+      <ul>
+        {cfg.nav.map((n) => <li><a href={n.href} aria-current={path.startsWith(n.href) && n.href !== '/' ? 'page' : undefined}>{n.label}</a></li>)}
+      </ul>
+    </nav>
+    {subscribe && <a class="btn btn-sub" href={subscribe} rel="noopener" target="_blank">Subscribe</a>}
+  </div>
+</header>

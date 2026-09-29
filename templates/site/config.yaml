@@ -1,0 +1,74 @@
+# yt-companion site configuration. Restart `yt-companion dev` after editing.
+site:
+  title: "__SITE_TITLE__"
+  tagline: "Show notes, gear, and resources for every video"
+  description: "The companion site for the __SITE_TITLE__ YouTube channel: full show notes, chapters, links, and articles."
+  url: "http://localhost:4321"        # IMPORTANT: set to your production URL (canonical tags, sitemap, OG images)
+  language: "en"
+  author: ""
+  logo: ""                            # e.g. /logo.png (put the file in ./public)
+  defaultImage: ""                    # fallback social share image, e.g. /og.png
+  themeColor: "#16a34a"               # accent color
+
+channel:
+  name: "__SITE_TITLE__"
+  handle: "@__SITE_SLUG__"
+  url: ""                             # https://www.youtube.com/@yourhandle
+  id: ""                              # UC... — enables `yt-companion sync`
+  subscribeUrl: ""                    # defaults to <channel.url>?sub_confirmation=1
+
+nav:
+  - { label: "Videos", href: "/videos/" }
+  - { label: "Playlists", href: "/playlists/" }
+  - { label: "Blog", href: "/blog/" }
+
+social: []
+#  - { label: "Instagram", url: "https://instagram.com/you" }
+
+# ── Affiliate tracking ───────────────────────────────────────────────
+affiliate:
+  # Raw HTML injected into <head> on every page — paste your affiliate network's tracker here
+  # (Amazon OneLink, Skimlinks, Sovrn //Commerce, Impact, Geniuslink, etc.).
+  headHtml: ""
+  # Call-to-action bar shown directly under each video title. Override per video with `affiliateBanner:`.
+  banner:
+    enabled: false
+    text: "Gear I use in this video:"
+    label: "See the full kit"
+    url: ""
+  amazonTag: ""                       # e.g. yourtag-20 — auto-appended to any amazon.* link in the link rails
+  trackClicks: true                   # sends "Affiliate Click" events to your analytics provider
+  disclosure: "Some links on this site are affiliate links. I may earn a commission at no extra cost to you."
+
+# ── Link rails beside the video (merged with each video's linksLeft / linksRight) ──
+links:
+  leftTitle: "Gear & Resources"
+  rightTitle: "Recommended"
+  left: []
+  #  - { label: "My camera", url: "https://www.amazon.com/dp/XXXXXXXX", note: "Main A-cam", cta: "Check price" }
+  right:
+    - { label: "Subscribe on YouTube", url: "https://www.youtube.com/", note: "New videos every week", cta: "Subscribe", affiliate: false }
+
+# ── Ad rails beside the show notes ───────────────────────────────────
+ads:
+  provider: "none"                    # none | adsense | custom
+  showPlaceholders: true              # show dashed "AD" boxes while you design the layout
+  adsense:
+    client: ""                        # ca-pub-XXXXXXXXXXXXXXXX
+    leftSlot: ""
+    rightSlot: ""
+  custom:
+    leftHtml: ""
+    rightHtml: ""
+
+# ── Analytics ────────────────────────────────────────────────────────
+analytics:
+  provider: "none"                    # none | plausible | umami | ga4
+  plausible: { domain: "" }
+  umami: { websiteId: "" }
+  ga4: { measurementId: "" }          # G-XXXXXXXXXX
+
+seo:
+  twitterHandle: ""
+  keywords: []
+  noindex: false                      # true = hide the whole site from search engines (staging)

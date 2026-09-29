@@ -1,0 +1,26 @@
+---
+// Vertical ad rail. provider: adsense | custom | none (placeholders optional for layout previews).
+import { cfg } from '../lib/site.mjs';
+interface Props { position: 'left' | 'right'; enabled?: boolean }
+const { position, enabled = true } = Astro.props;
+const ads = cfg.ads;
+const slot = position === 'left' ? ads.adsense.leftSlot : ads.adsense.rightSlot;
+const html = position === 'left' ? ads.custom.leftHtml : ads.custom.rightHtml;
+const mode = !enabled ? 'off'
+  : ads.provider === 'adsense' && ads.adsense.client && slot ? 'adsense'
+  : ads.provider === 'custom' && html ? 'custom'
+  : ads.showPlaceholders ? 'placeholder' : 'off';
+---
+{mode !== 'off' && (
+  <aside class={`rail rail-ad rail-ad-${position}`} aria-label="Advertisement">
+    <div class="ad-sticky">
+      <span class="ad-label">Advertisement</span>
+      {mode === 'adsense' && (
+        <ins class="adsbygoogle" style="display:block" data-ad-client={ads.adsense.client} data-ad-slot={slot} data-ad-format="vertical" data-full-width-responsive="true"></ins>
+      )}
+      {mode === 'adsense' && <script is:inline>(window.adsbygoogle = window.adsbygoogle || []).push({});</script>}
+      {mode === 'custom' && <Fragment set:html={html} />}
+      {mode === 'placeholder' && <div class="ad-placeholder">AD<br /><small>160×600</small></div>}
+    </div>
+  </aside>
+)}

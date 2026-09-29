@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.yt-companion/
+*.tgz
+.DS_Store

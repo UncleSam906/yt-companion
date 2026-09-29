@@ -1,0 +1,22 @@
+---
+import { cfg } from '../lib/site.mjs';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div>
+      <strong>{cfg.site.title}</strong>
+      <p class="muted">{cfg.site.description}</p>
+    </div>
+    <ul class="footer-links">
+      {cfg.channel.url && <li><a href={cfg.channel.url} rel="noopener">YouTube</a></li>}
+      {cfg.social.map((s) => <li><a href={s.url} rel="me noopener">{s.label}</a></li>)}
+      <li><a href="/rss.xml">RSS</a></li>
+      {!cfg.seo.noindex && <li><a href="/sitemap-index.xml">Sitemap</a></li>}
+    </ul>
+  </div>
+  <div class="wrap fine-print muted">
+    {cfg.affiliate.disclosure && <p>{cfg.affiliate.disclosure}</p>}
+    <p>© {year} {cfg.site.author || cfg.site.title}. Built with <a href="https://github.com/UncleSam906/yt-companion">yt-companion</a>.</p>
+  </div>
+</footer>

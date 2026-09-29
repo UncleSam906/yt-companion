@@ -1,0 +1,32 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getPlaylists, absUrl, ytThumb, formatDate, clockDuration } from '../../lib/site.mjs';
+export async function getStaticPaths() {
+  return (await getPlaylists()).filter((p) => p.items.length).map((pl) => ({ params: { slug: pl.id }, props: { pl } }));
+}
+const { pl } = Astro.props;
+const ld = { '@context': 'https://schema.org', '@type': 'ItemList', name: pl.data.title, description: pl.data.description, itemListElement: pl.items.map((v, i) => ({ '@type': 'ListItem', position: i + 1, url: absUrl(`/videos/${v.id}/`), name: v.data.title })) };
+---
+<Base seo={{ title: pl.data.title, description: pl.data.description || `${pl.items.length} videos in the ${pl.data.title} playlist.`, image: ytThumb(pl.items[0].data.youtubeId, 'hqdefault'), jsonLd: [ld] }}>
+  <section class="wrap section">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Playlists', href: '/playlists/' }, { label: pl.data.title }]} />
+    <header class="page-head">
+      <p class="kicker">Playlist · {pl.items.length} videos</p>
+      <h1>{pl.data.title}</h1>
+      {pl.data.description && <p class="lead">{pl.data.description}</p>}
+      {pl.data.youtubePlaylistId && <p><a class="btn" href={`https://www.youtube.com/playlist?list=${pl.data.youtubePlaylistId}`} rel="noopener" target="_blank">Play all on YouTube</a></p>}
+    </header>
+    <ol class="pl-list">
+      {pl.items.map((v, i) => (
+        <li>
+          <a href={`/videos/${v.id}/`}>
+            <span class="pl-num">{i + 1}</span>
+            <img src={ytThumb(v.data.youtubeId, 'mqdefault')} alt="" width="160" height="90" loading="lazy" />
+            <span><strong>{v.data.title}</strong><span class="muted small">{formatDate(v.data.date)}{v.data.duration && ` · ${clockDuration(v.data.duration)}`}</span>{v.data.description && <span class="small">{v.data.description}</span>}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+</Base>

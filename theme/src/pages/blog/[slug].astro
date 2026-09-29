@@ -1,0 +1,24 @@
+---
+import { render } from 'astro:content';
+import CompanionLayout from '../../layouts/CompanionLayout.astro';
+import { cfg, getPosts, absUrl, ytThumb, formatDate, tagSlug } from '../../lib/site.mjs';
+export async function getStaticPaths() {
+  return (await getPosts()).map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+const { post } = Astro.props;
+const d = post.data;
+const { Content, remarkPluginFrontmatter } = await render(post);
+const url = absUrl(`/blog/${post.id}/`);
+const image = d.image ? absUrl(d.image) : d.youtubeId ? ytThumb(d.youtubeId, 'hqdefault') : undefined;
+const ld = {
+  '@context': 'https://schema.org', '@type': 'BlogPosting', headline: d.title, description: d.description,
+  datePublished: d.date.toISOString(), dateModified: (d.updated || d.date).toISOString(), mainEntityOfPage: url,
+  author: { '@type': 'Person', name: d.author || cfg.site.author || cfg.channel.name },
+  publisher: { '@type': 'Organization', name: cfg.site.title }, ...(image && { image }), keywords: d.tags.join(', '),
+};
+---
+<CompanionLayout seo={{ title: d.seoTitle || d.title, description: d.description, image, type: 'article', published: d.date, updated: d.updated, tags: d.tags, jsonLd: [ld] }} entry={post} crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog/' }, { label: d.title }]}>
+  <p slot="before" class="meta muted"><time datetime={d.date.toISOString()}>{formatDate(d.date)}</time>{(d.author || cfg.site.author) && <span> · {d.author || cfg.site.author}</span>}</p>
+  <Content />
+  <Fragment slot="after">{d.tags.length > 0 && <ul class="tags">{d.tags.map((t) => <li><a href={`/tags/${tagSlug(t)}/`}>#{t}</a></li>)}</ul>}</Fragment>
+</CompanionLayout>

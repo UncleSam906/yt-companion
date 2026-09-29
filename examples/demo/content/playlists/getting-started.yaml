@@ -1,0 +1,4 @@
+title: "Getting started"
+description: "Sample playlist. Videos join a playlist by listing its slug in their `playlists:` frontmatter, or via the `videos:` list below."
+order: 1
+videos: []
