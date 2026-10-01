@@ -4,6 +4,10 @@
 #   docker run --rm -p 8080:80 yt-companion-site        → http://localhost:8080
 #
 # SITE_DIR is any folder inside the build context that contains a config.yaml.
+#
+# SECRETS: the image build needs no API key. YT_API_KEY is used only by
+# `yt-companion sync`, run outside Docker. .dockerignore excludes .env files,
+# and only the built static site (dist/) reaches the final nginx image.
 FROM node:22-alpine AS build
 WORKDIR /opt/yt-companion
 COPY package.json package-lock.json ./

@@ -2,3 +2,7 @@ node_modules
 dist
 .yt-companion
 .git
+
+# Secrets never enter the image
+.env
+.env.*

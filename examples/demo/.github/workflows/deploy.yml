@@ -16,7 +16,11 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: npm install -g github:UncleSam906/yt-companion
-      # Optional: auto-import new uploads (requires channel.id in config.yaml)
+      # Optional: auto-import new uploads (requires channel.id in config.yaml).
+      # To use the YouTube Data API, add YT_API_KEY under Settings -> Secrets and
+      # variables -> Actions, and pass it to this step only:
+      #   env: { YT_API_KEY: ${{ secrets.YT_API_KEY }} }
+      # Never write the key into config.yaml or this file.
       # - run: yt-companion sync && git config user.name bot && git config user.email bot@users.noreply.github.com && git add content && git commit -m "sync videos" && git push || true
       - run: yt-companion build
       - uses: actions/upload-pages-artifact@v3
