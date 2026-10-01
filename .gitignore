@@ -3,3 +3,8 @@ dist/
 .yt-companion/
 *.tgz
 .DS_Store
+
+# Secrets (YT_API_KEY etc.) — never commit; template: .env.example
+.env
+.env.*
+!.env.example

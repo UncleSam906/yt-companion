@@ -4,3 +4,7 @@ node_modules
 **/.yt-companion
 .git
 *.tgz
+
+# Secrets never enter the image
+.env
+.env.*
