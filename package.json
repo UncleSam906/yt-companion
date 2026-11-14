@@ -33,7 +33,7 @@
   "license": "MIT",
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
-    "astro": "^7.3.5",
+    "astro": "^7.4.7",
     "commander": "^15.0.0",
     "gray-matter": "^4.0.3",
     "js-yaml": "^4.1.0"
